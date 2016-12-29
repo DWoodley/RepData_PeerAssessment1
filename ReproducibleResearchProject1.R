@@ -141,31 +141,16 @@
     avg.steps.weekday.t <- as.data.table(avg.steps.weekday)
     avg.steps.weekday.t$interval <- row.names(avg.steps.weekday)
     
-    xpar <- par(mfrow = c(2,1))
-    plot(x = factor(avg.steps.weekday.t$interval,ordered=TRUE),
-         y = avg.steps.weekday.t$avg.steps.weekday,
-         main ="Average Number of Steps by 5 Minute Intervals\nWeekdays",
-         ylab = "Number of Steps",
-         xlab = "Time of Day",
-         type = "l")
-    lines(avg.steps.weekday.t$avg.steps.weekday,col="blue")    
+    avg.steps.weekday.t$daytype <- factor("Weekday",levels=c("Weekday","Weekend"))
+    avg.steps.weekend.t$daytype <- factor("Weekend",levels=c("Weekday","Weekend"))
+    colnames(avg.steps.weekday.t) <- c("avg.steps","interval","daytype")
+    colnames(avg.steps.weekend.t) <- c("avg.steps","interval","daytype")
     
-    plot(x = factor(avg.steps.weekend.t$interval,ordered=TRUE),
-         y = avg.steps.weekend.t$avg.steps.weekend,
-         main ="Average Number of Steps by 5 Minute Intervals\nWeekends",
-         ylab = "Number of Steps",
-         xlab = "Time of Day",
-         type = "l")
-    lines(avg.steps.weekend.t$avg.steps.weekend,col="blue") 
-
-    par(xpar)
     
-#    t.avg.steps <- as.data.table(avg.steps.by.time)
-#    t.avg.steps$avg.steps.by.time <- round(t.avg.steps$avg.steps.by.time)
-#    t.avg.steps$interval <- row.names(avg.steps.by.time)
-#    t.avg.steps$interval <- str_pad(t.avg.steps$interval,4,side="left",pad="0")
-#    t.avg.steps$interval <- str_c(str_sub(t.avg.steps$interval,1,2),":",str_sub(t.avg.steps$interval,3,4))
-#    t.avg.steps$interval <- factor(t.avg.steps$interval,ordered = TRUE)
+    xsteps <- rbind(avg.steps.weekend.t,avg.steps.weekday.t)
+    coplot(avg.steps ~ factor(interval)|daytype,data=xsteps,type = "l",
+           ylab="Steps",xlab="Interval")
+    
     
     
     
