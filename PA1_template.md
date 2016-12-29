@@ -1,34 +1,61 @@
----
-title: "PA1_template.Rmd"
-author: "Dean Woodley"
-date: "Monday, December 26, 2016"
-output:
-  html_document:
-    keep_md: yes
----
+# PA1_template.Rmd
+Dean Woodley  
+Monday, December 26, 2016  
 Loading and preprocessing the data
 Show any code that is needed to Load the data
 
 1: Code for reading in the dataset and/or processing the data
-```{r echo=FALSE}
-    #File name activity.csv
-    if(exists("activity")) remove("activity")
-    if(exists("imputed.activity")) remove("imputed.activity")
-    if(exists("t.avg.steps")) remove("t.avg.steps")
-    if(exists("avg.steps.by.time")) remove("avg.steps.by.time")
-    if(exists("avg.steps.weekday.t")) remove("avg.steps.weekday.t")
-    if(exists("avg.steps.weekend.t")) remove("avg.steps.weekend.t")
 
-    par(mfrow=c(1,1))
+
+
+```r
+    library(lubridate)
 ```
 
-```{r echo=TRUE}
+```
+## 
+## Attaching package: 'lubridate'
+```
 
-    library(lubridate)
+```
+## The following object is masked from 'package:base':
+## 
+##     date
+```
+
+```r
     library(stringr)
     library(data.table)
-    library(chron)
+```
 
+```
+## 
+## Attaching package: 'data.table'
+```
+
+```
+## The following objects are masked from 'package:lubridate':
+## 
+##     hour, isoweek, mday, minute, month, quarter, second, wday,
+##     week, yday, year
+```
+
+```r
+    library(chron)
+```
+
+```
+## 
+## Attaching package: 'chron'
+```
+
+```
+## The following objects are masked from 'package:lubridate':
+## 
+##     days, hours, minutes, seconds, years
+```
+
+```r
     unzip("activity.zip")
     filename <- "activity.csv"
 
@@ -49,25 +76,40 @@ Show any code that is needed to Load the data
                                         side="left",pad="0"),start=3,end=4),sep=":"),ordered=TRUE)
 ```
 2: Create a histogram of number of steps per day.
-```{r, echo=TRUE}
+
+```r
     hist(tapply(activity$steps,activity$date,sum,na.rm=TRUE),breaks=50,
          xlab = "Number of steps",
          ylab = "Frequency",
          main = "Frequency of Total Steps Per Day \nOver 61 Day Period (Raw Data)")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 3:  Mean and median number of steps taken each day.
-```{r, echo=TRUE}
+
+```r
     mean.steps <- round(mean(tapply(activity$steps,activity$date,sum,na.rm=TRUE)))
     median.steps <- median(tapply(activity$steps,activity$date,sum,na.rm=TRUE))
     
     print(str_c("Mean number of steps per day:",as.character(mean.steps),sep= " "))
-    print(str_c("Median number of steps per day:",as.character(median.steps),sep= " "))
+```
 
+```
+## [1] "Mean number of steps per day: 9354"
+```
+
+```r
+    print(str_c("Median number of steps per day:",as.character(median.steps),sep= " "))
+```
+
+```
+## [1] "Median number of steps per day: 10395"
 ```
 
 4:  Time series plot of the average number of steps taken
-```{r, echo=TRUE}
+
+```r
     avg.steps.by.time <- tapply(activity$steps,activity$interval,mean,na.rm=TRUE,ordered=TRUE)
     
     t.avg.steps <- as.data.table(avg.steps.by.time)
@@ -85,10 +127,13 @@ Show any code that is needed to Load the data
          type = "l")
     lines(t.avg.steps$avg.steps.by.time,col="blue")    
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
    
    
 5:  The 5-minute interval that, on average, contains the maximum number of steps
-```{r}
+
+```r
     max.interval <- t.avg.steps[t.avg.steps$avg.steps.by.time 
                                 == max(t.avg.steps$avg.steps.by.time)]$interval
 
@@ -96,10 +141,14 @@ Show any code that is needed to Load the data
                 as.character(max.interval),sep= " "))
 ```
 
+```
+## [1] "Start of 5 minute interval with maximum average number of steps: 08:35"
+```
+
 
 6:  Code to describe and show a strategy for imputing missing data
-```{r}
-    
+
+```r
     num.missing.vals <- sum(is.na(activity$steps))
     imputed.activity <- activity
     if (num.missing.vals > 0)
@@ -109,10 +158,10 @@ Show any code that is needed to Load the data
                 round(t.avg.steps[t.avg.steps$interval==x,]$avg.steps.by.time)
         }
     }
-
 ```
 7:  Histogram of the total number of steps taken each day after missing values are imputed
-```{r, echo=TRUE}
+
+```r
     xpar <- par(mfrow = c(2,1))
     
     hist(tapply(imputed.activity$steps,imputed.activity$date,sum),breaks=50,
@@ -124,11 +173,16 @@ Show any code that is needed to Load the data
          xlab = "Number of steps per day",
          ylab = "Frequency",
          main = "Frequency of Total Steps Per Day \nOver 61 Day Period (Raw Data)")
-    
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+```r
     par(xpar)
 ```
 8:  Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
-```{r, echo=TRUE}
+
+```r
     imputed.activity$daytype <- factor("Weekday",levels=c("Weekday","Weekend"))
     imputed.activity[is.weekend(imputed.activity$datetime),]$daytype <- factor("Weekend")
     
@@ -154,7 +208,9 @@ Show any code that is needed to Load the data
     xsteps <- rbind(avg.steps.weekend.t,avg.steps.weekday.t)
     coplot(avg.steps ~ factor(interval)|daytype,data=xsteps,type = "l",
            ylab="Steps",xlab="Time")
- ```
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 
 
